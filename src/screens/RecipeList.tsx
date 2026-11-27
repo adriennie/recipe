@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Recipe } from '../db';
 import Icon from '../components/Icon';
+import { aiAvailable } from '../ai';
 
 export default function RecipeList() {
   const recipes = useLiveQuery(() => db.recipes.orderBy('updatedAt').reverse().toArray(), []);
@@ -22,6 +23,14 @@ export default function RecipeList() {
         <h1>Recipes</h1>
         <a className="btn primary small" href="#/new"><Icon name="plus" size={18} /> New</a>
       </header>
+
+      {aiAvailable && (
+        <a className="card ideas-banner" href="#/ideas">
+          <Icon name="sparkle" size={22} />
+          <span><b>What can I cook?</b><br /><span className="muted small-text">Tell me what's in your kitchen</span></span>
+          <Icon name="next" size={18} />
+        </a>
+      )}
 
       {recipes && recipes.length > 0 && (
         <>

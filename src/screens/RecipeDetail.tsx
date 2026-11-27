@@ -3,11 +3,20 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, addToGrocery } from '../db';
 import { go } from '../router';
 import Icon from '../components/Icon';
+import IngredientImage from '../components/IngredientImage';
+import ImageSheet from '../components/ImageSheet';
+import TermText from '../components/TermText';
+import TermSheet from '../components/TermSheet';
+import type { Term } from '../glossary';
+import RecipeAI from '../components/RecipeAI';
+import { aiAvailable } from '../ai';
 
 export default function RecipeDetail({ id }: { id: number }) {
   const r = useLiveQuery(() => db.recipes.get(id), [id], null);
   const [picked, setPicked] = useState<Set<number>>(new Set());
   const [toast, setToast] = useState('');
+  const [term, setTerm] = useState<Term | null>(null);
+  const [image, setImage] = useState<{ text: string; url: string | null } | null>(null);
 
   useEffect(() => { if (r === undefined) go('/'); }, [r]);
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(''), 2500); return () => clearTimeout(t); }, [toast]);
@@ -65,7 +74,8 @@ export default function RecipeDetail({ id }: { id: number }) {
                 <li key={i}>
                   <label className={picked.has(i) ? 'on' : ''}>
                     <input type="checkbox" checked={picked.has(i)} onChange={() => toggle(i)} />
-                    <span>{ing}</span>
+                    <IngredientImage text={ing} onOpen={(url) => setImage({ text: ing, url })} />
+                    <span><TermText text={ing} mode="ingredient" onTerm={setTerm} /></span>
                   </label>
                 </li>
               ))}
@@ -77,13 +87,18 @@ export default function RecipeDetail({ id }: { id: number }) {
         )}
       </section>
 
+      {aiAvailable && <RecipeAI recipe={r} />}
+
       <section className="section">
         <h2>Steps <span className="count">{r.steps.length}</span></h2>
+        <p className="muted small-text">Tap an <span className="term-sample">underlined word</span> to see what it means.</p>
         <ol className="steps">
-          {r.steps.map((s, i) => <li key={i}>{s}</li>)}
+          {r.steps.map((s, i) => <li key={i}><span><TermText text={s} onTerm={setTerm} /></span></li>)}
         </ol>
       </section>
 
+      {term && <TermSheet term={term} onClose={() => setTerm(null)} />}
+      {image && <ImageSheet text={image.text} url={image.url} onClose={() => setImage(null)} />}
       {toast && <div className="toast" role="status">{toast} · <a href="#/grocery">View</a></div>}
     </>
   );

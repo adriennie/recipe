@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, addToGrocery, normalize, type GroceryItem } from '../db';
 import Icon from '../components/Icon';
+import IngredientImage from '../components/IngredientImage';
+import TidySheet from '../components/TidySheet';
+import { aiAvailable, SECTIONS } from '../ai';
 
 export default function Grocery() {
   const items = useLiveQuery(() => db.grocery.orderBy('createdAt').toArray(), []);
   const [text, setText] = useState('');
   const [editing, setEditing] = useState<number | null>(null);
+  const [tidy, setTidy] = useState(false);
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +45,27 @@ export default function Grocery() {
         </div>
       )}
 
-      <ul className="grocery">
-        {todo.map((g) => <Row key={g.id} g={g} editing={editing === g.id} setEditing={setEditing} />)}
-      </ul>
+      {aiAvailable && todo.length > 1 && (
+        <button className="btn secondary block tidy-btn" onClick={() => setTidy(true)}><Icon name="sparkle" size={18} /> Tidy my list</button>
+      )}
+
+      {todo.some((g) => g.section) ? (
+        // Grouped by shop section once the list has been tidied; new items without a section go under "Other".
+        SECTIONS.map((sec) => {
+          const list = todo.filter((g) => (g.section && SECTIONS.includes(g.section) ? g.section : 'Other') === sec);
+          return list.length ? (
+            <div key={sec} className="aisle">
+              <h3 className="aisle-head">{sec}</h3>
+              <ul className="grocery">{list.map((g) => <Row key={g.id} g={g} editing={editing === g.id} setEditing={setEditing} />)}</ul>
+            </div>
+          ) : null;
+        })
+      ) : (
+        <ul className="grocery">
+          {todo.map((g) => <Row key={g.id} g={g} editing={editing === g.id} setEditing={setEditing} />)}
+        </ul>
+      )}
+      {tidy && <TidySheet items={todo} onClose={() => setTidy(false)} />}
 
       {done.length > 0 && (
         <section className="section">
@@ -71,6 +93,7 @@ function Row({ g, editing, setEditing }: { g: GroceryItem; editing: boolean; set
     <li className={'g-row' + (g.checked ? ' checked' : '')}>
       <input type="checkbox" checked={g.checked} aria-label={`Mark ${g.text} as bought`}
         onChange={() => db.grocery.update(g.id!, { checked: !g.checked })} />
+      <IngredientImage text={g.text} />
       {editing ? (
         <input className="g-edit" autoFocus value={val} onChange={(e) => setVal(e.target.value)}
           onBlur={save} onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(null); }} />
