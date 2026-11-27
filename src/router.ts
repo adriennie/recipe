@@ -7,7 +7,9 @@ export type Route =
   | { name: 'recipe'; id: number }
   | { name: 'cook'; id: number }
   | { name: 'grocery' }
-  | { name: 'settings' };
+  | { name: 'settings' }
+  | { name: 'terms' }
+  | { name: 'ideas' };
 
 export function parseHash(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/');
@@ -19,6 +21,8 @@ export function parseHash(hash: string): Route {
     case 'cook': return id ? { name: 'cook', id } : { name: 'list' };
     case 'grocery': return { name: 'grocery' };
     case 'settings': return { name: 'settings' };
+    case 'terms': return { name: 'terms' };
+    case 'ideas': return { name: 'ideas' };
     default: return { name: 'list' };
   }
 }

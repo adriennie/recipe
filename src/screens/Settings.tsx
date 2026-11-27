@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { exportBackup, importBackup } from '../db';
+import AccountCard from '../components/AccountCard';
+import { clearImageCache, imagesEnabled, setImagesEnabled } from '../images';
 import { getVoices, loadVoiceSettings, saveVoiceSettings, speak, speechSupported } from '../speech';
 
 export default function Settings() {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [settings, setSettings] = useState(loadVoiceSettings);
   const [msg, setMsg] = useState('');
+  const [pics, setPics] = useState(imagesEnabled);
   const file = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -48,6 +51,8 @@ export default function Settings() {
     <>
       <header className="topbar"><h1>Settings</h1></header>
 
+      <AccountCard />
+
       <section className="section card pad-card">
         <h2>Voice</h2>
         {!speechSupported ? <p className="error">Read-aloud isn't available in this browser.</p> : (
@@ -71,8 +76,18 @@ export default function Settings() {
       </section>
 
       <section className="section card pad-card">
+        <h2>Ingredient pictures</h2>
+        <label className="switch-row">
+          <span>Show pictures of ingredients</span>
+          <input type="checkbox" checked={pics} onChange={(e) => { setPics(e.target.checked); setImagesEnabled(e.target.checked); }} />
+        </label>
+        <p className="hint">Pictures come from TheMealDB and Wikipedia. Only the ingredient name is sent. Once seen, they're saved for offline use.</p>
+        <button className="link" onClick={() => { clearImageCache(); setMsg('Pictures will be looked up again.'); }}>Refresh pictures</button>
+      </section>
+
+      <section className="section card pad-card">
         <h2>Backup</h2>
-        <p className="muted">Recipes are saved only on this phone. Export a backup now and then so you don't lose them.</p>
+        <p className="muted">Without an account, recipes are saved only on this phone. Export a backup now and then so you don't lose them.</p>
         <div className="row-btns">
           <button className="btn secondary" onClick={doExport}>Export backup</button>
           <button className="btn secondary" onClick={() => file.current?.click()}>Import backup</button>

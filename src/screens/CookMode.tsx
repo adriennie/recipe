@@ -4,6 +4,14 @@ import { db } from '../db';
 import { go } from '../router';
 import { speak, stopSpeaking, speechSupported } from '../speech';
 import Icon from '../components/Icon';
+import IngredientImage from '../components/IngredientImage';
+import ImageSheet from '../components/ImageSheet';
+import TermText from '../components/TermText';
+import TermSheet from '../components/TermSheet';
+import Sheet from '../components/Sheet';
+import AskSheet from '../components/AskSheet';
+import { aiAvailable } from '../ai';
+import { termsIn, type Term } from '../glossary';
 
 /** Keeps the screen on while cooking (re-acquired when the app comes back to the front). */
 function useWakeLock() {
@@ -25,6 +33,9 @@ export default function CookMode({ id }: { id: number }) {
   const [i, setI] = useState(-1); // -1 = not started, steps.length = finished
   const [speaking, setSpeaking] = useState(false);
   const [showIng, setShowIng] = useState(false);
+  const [term, setTerm] = useState<Term | null>(null);
+  const [image, setImage] = useState<{ text: string; url: string | null } | null>(null);
+  const [asking, setAsking] = useState(false);
   const stepRef = useRef<HTMLDivElement>(null);
   useWakeLock();
 
@@ -48,12 +59,13 @@ export default function CookMode({ id }: { id: number }) {
   // Arrow keys / space work with a Bluetooth keyboard or page-turner.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (term || showIng || image || asking) return;
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); if (i < total) goTo(i + 1); }
       if (e.key === 'ArrowLeft' && i > 0) goTo(i - 1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [i, total, goTo]);
+  }, [i, total, goTo, term, showIng, image, asking]);
 
   if (!r) return null;
 
@@ -66,6 +78,9 @@ export default function CookMode({ id }: { id: number }) {
       <header className="cook-top">
         <button className="icon-btn" onClick={exit} aria-label="Exit cook mode"><Icon name="close" /></button>
         <div className="cook-title">{r.title}</div>
+        {aiAvailable && (
+          <button className="icon-btn ai-btn" onClick={() => { stopSpeaking(); setAsking(true); }} aria-label="Ask AI about this step"><Icon name="sparkle" /></button>
+        )}
         <button className="icon-btn" onClick={() => setShowIng(true)} aria-label="Show ingredients"><Icon name="list" /></button>
       </header>
       <div className="progress" role="progressbar" aria-valuenow={Math.max(0, i + 1)} aria-valuemin={0} aria-valuemax={total}>
@@ -89,7 +104,21 @@ export default function CookMode({ id }: { id: number }) {
         ) : (
           <>
             <p className="cook-count">Step {i + 1} of {total}</p>
-            <p className="cook-text">{r.steps[i]}</p>
+            <p className="cook-text"><TermText text={r.steps[i]} onTerm={setTerm} /></p>
+            {aiAvailable && (
+              <button className="chip ask-chip" onClick={() => { stopSpeaking(); setAsking(true); }}>
+                <Icon name="sparkle" size={16} /> Ask about this step
+              </button>
+            )}
+            {termsIn(r.steps[i]).length > 0 && (
+              <div className="term-chips">
+                {termsIn(r.steps[i]).map((t) => (
+                  <button key={t.term} className="chip term-chip" onClick={() => setTerm(t)}>
+                    <span aria-hidden="true">?</span> What does “{t.term}” mean?
+                  </button>
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
@@ -115,17 +144,21 @@ export default function CookMode({ id }: { id: number }) {
       </footer>
 
       {showIng && (
-        <div className="sheet-backdrop" onClick={() => setShowIng(false)}>
-          <div className="sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Ingredients">
-            <div className="section-head">
-              <h2>Ingredients</h2>
-              <button className="icon-btn" onClick={() => setShowIng(false)} aria-label="Close"><Icon name="close" /></button>
-            </div>
-            <ul className="plain-list">{r.ingredients.map((x, k) => <li key={k}>{x}</li>)}</ul>
-            <button className="btn secondary block" onClick={readIngredients}><Icon name="speaker" size={18} /> Read aloud</button>
-          </div>
-        </div>
+        <Sheet title="Ingredients" onClose={() => setShowIng(false)}>
+          <ul className="ing-list">
+            {r.ingredients.map((x, k) => (
+              <li key={k}>
+                <IngredientImage text={x} size={52} onOpen={(url) => setImage({ text: x, url })} />
+                <span><TermText text={x} mode="ingredient" onTerm={setTerm} /></span>
+              </li>
+            ))}
+          </ul>
+          <button className="btn secondary block" onClick={readIngredients}><Icon name="speaker" size={18} /> Read aloud</button>
+        </Sheet>
       )}
+      {image && <ImageSheet text={image.text} url={image.url} onClose={() => setImage(null)} />}
+      {term && <TermSheet term={term} autoSpeak onClose={() => setTerm(null)} />}
+      {asking && <AskSheet recipe={r} stepIndex={i >= 0 && i < total ? i : -1} onClose={() => setAsking(false)} />}
     </div>
   );
 }
