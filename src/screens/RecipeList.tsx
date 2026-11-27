@@ -28,7 +28,7 @@ export default function RecipeList() {
 
   return (
     <div className="home">
-      <header className="home-head">
+      <header className="home-head hello-in">
         <div>
           <h1 className="hello">Let’s Cook<br />Something <span className="gold-text">Good.</span></h1>
           <p className="muted hello-sub">Discover your next favorite recipe.</p>
@@ -59,7 +59,7 @@ export default function RecipeList() {
 
           {!q && !favOnly && cat === 'All' && <Featured list={featured} />}
 
-          <div className="cat-row" role="tablist" aria-label="Categories">
+          <div className="cat-row stagger" role="tablist" aria-label="Categories">
             {cats.map((c) => (
               <button key={c} role="tab" aria-selected={cat === c} className={'cat-tile' + (cat === c ? ' on' : '')} onClick={() => setCat(c)}>
                 <Art name={CATEGORY_ART[c] ?? 'dough'} size={44} className="cat-art" />
@@ -81,7 +81,7 @@ export default function RecipeList() {
             <span className="muted">{shown.length}</span>
           </div>
           {shown.length === 0 ? <p className="muted center pad">No recipes match.</p> : (
-            <ul className="recipe-rows">
+            <ul className="recipe-rows stagger">
               {shown.map((r) => <Row key={r.id} r={r} />)}
             </ul>
           )}
@@ -107,7 +107,7 @@ function Cover({ title, category, className }: { title: string; category: string
   return (
     <div className={className}>
       {url && !failed
-        ? <img src={url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
+        ? <img className="fade-img" onLoad={(e) => e.currentTarget.classList.add('loaded')} src={url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
         : <Art name={CATEGORY_ART[category] ?? 'dough'} size={className === 'hero-img' ? 120 : 60} className="cover-art" />}
     </div>
   );

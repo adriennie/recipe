@@ -58,7 +58,7 @@ export default function Terms() {
         </div>
       )}
 
-      <ul className="term-list">
+      <ul className="term-list stagger">
         {shown.map((t) => (
           <li key={t.term}>
             <button onClick={() => setOpen(t)}>

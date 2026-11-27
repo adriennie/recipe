@@ -17,7 +17,7 @@ export default function IngredientImage({ text, size = 44, onOpen }: { text: str
 
   const show = enabled && url && !failed;
   const body = show ? (
-    <img src={url!} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => { setFailed(true); forgetImage(text); }} />
+    <img className="fade-img" onLoad={(e) => e.currentTarget.classList.add('loaded')} src={url!} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => { setFailed(true); forgetImage(text); }} />
   ) : <span aria-hidden="true">{ingredientEmoji(text)}</span>;
 
   if (!onOpen) return <span className="ing-img" style={{ width: size, height: size }}>{body}</span>;

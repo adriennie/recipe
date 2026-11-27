@@ -57,12 +57,12 @@ export default function Grocery() {
           return list.length ? (
             <div key={sec} className="aisle">
               <h3 className="aisle-head">{sec}</h3>
-              <ul className="grocery">{list.map((g) => <Row key={g.id} g={g} editing={editing === g.id} setEditing={setEditing} />)}</ul>
+              <ul className="grocery stagger">{list.map((g) => <Row key={g.id} g={g} editing={editing === g.id} setEditing={setEditing} />)}</ul>
             </div>
           ) : null;
         })
       ) : (
-        <ul className="grocery">
+        <ul className="grocery stagger">
           {todo.map((g) => <Row key={g.id} g={g} editing={editing === g.id} setEditing={setEditing} />)}
         </ul>
       )}
@@ -74,7 +74,7 @@ export default function Grocery() {
             <h2 className="muted">In the cart <span className="count">{done.length}</span></h2>
             <button className="link" onClick={clearChecked}>Clear checked</button>
           </div>
-          <ul className="grocery">
+          <ul className="grocery stagger">
             {done.map((g) => <Row key={g.id} g={g} editing={editing === g.id} setEditing={setEditing} />)}
           </ul>
         </section>

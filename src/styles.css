@@ -389,3 +389,111 @@ input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shado
 .hero-img, .row-img { background: linear-gradient(135deg, #fbf1dc, #f5e3bd); }
 .cover-art { border-radius: 24%; box-shadow: var(--shadow); }
 .cook-art { margin-bottom: 18px; align-self: flex-start; }
+
+/* ── Motion ──────────────────────────────────────────────── */
+:root {
+  --ease-out: cubic-bezier(.22, 1, .36, 1);      /* quick start, soft landing */
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1); /* small overshoot */
+}
+
+/* Page transitions: tabs fade up, opening something slides in from the right */
+.page-fade { animation: pageFade .32s var(--ease-out) backwards; }
+.page-push { animation: pagePush .38s var(--ease-out) backwards; }
+.page-zoom { animation: pageZoom .35s var(--ease-out) backwards; }
+@keyframes pageFade { from { opacity: 0; transform: translateY(10px); } }
+@keyframes pagePush { from { opacity: 0; transform: translateX(28px); } }
+@keyframes pageZoom { from { opacity: 0; transform: scale(.97); } }
+
+/* Home greeting lines rise in one after the other */
+.hello-in .hello, .hello-in .hello-sub, .hello-in .head-btns { animation: rise .5s var(--ease-out) backwards; }
+.hello-in .hello-sub { animation-delay: .08s; }
+.hello-in .head-btns { animation-delay: .14s; }
+.hello .gold-text { display: inline-block; animation: goodPop .7s var(--ease-spring) .25s backwards; }
+@keyframes goodPop { from { opacity: 0; transform: translateY(8px) scale(.9); } }
+
+/* Lists: items rise in one after another (first 12; the rest appear together) */
+.stagger > * { animation: rise .42s var(--ease-out) backwards; }
+.stagger > :nth-child(1) { animation-delay: .03s; }
+.stagger > :nth-child(2) { animation-delay: .07s; }
+.stagger > :nth-child(3) { animation-delay: .11s; }
+.stagger > :nth-child(4) { animation-delay: .15s; }
+.stagger > :nth-child(5) { animation-delay: .19s; }
+.stagger > :nth-child(6) { animation-delay: .23s; }
+.stagger > :nth-child(7) { animation-delay: .27s; }
+.stagger > :nth-child(8) { animation-delay: .31s; }
+.stagger > :nth-child(9) { animation-delay: .35s; }
+.stagger > :nth-child(10) { animation-delay: .39s; }
+.stagger > :nth-child(11) { animation-delay: .43s; }
+.stagger > :nth-child(n+12) { animation-delay: .47s; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+/* Featured carousel and cards */
+.featured { animation: rise .5s var(--ease-out) .12s backwards; }
+.search-pill { animation: rise .45s var(--ease-out) .06s backwards; }
+.soft-card, .cat-tile, .heart-btn, .bookmark, .round-btn, .chip, .btn, .icon-btn, .tab {
+  transition: transform .18s var(--ease-out), box-shadow .2s var(--ease-out), background-color .2s, color .2s;
+}
+a.soft-card:active, .recipe-row:active, .hero-card:active { transform: scale(.98); }
+.cat-tile:active, .round-btn:active, .chip:active { transform: scale(.94); }
+@media (hover: hover) {
+  a.soft-card:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(140, 105, 50, .14); }
+  .cat-tile:hover { transform: translateY(-2px); }
+}
+.cat-tile.on .cat-art { animation: tilePop .35s var(--ease-spring); }
+@keyframes tilePop { 0% { transform: scale(.85); } 100% { transform: scale(1); } }
+
+/* Photos fade in when loaded; a soft shimmer shows while they load */
+.fade-img { opacity: 0; transition: opacity .45s ease; }
+.fade-img.loaded { opacity: 1; }
+.hero-img:not(:has(.loaded)):has(img), .row-img:not(:has(.loaded)):has(img), .detail-cover:not(:has(.loaded)), .ing-img:not(:has(.loaded)):has(img) {
+  background: linear-gradient(100deg, #f4ecdc 30%, #fbf6ec 50%, #f4ecdc 70%) 0 0 / 300% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+@keyframes shimmer { to { background-position: -150% 0; } }
+
+/* Favorite heart / bookmark pop when turned on */
+.heart-btn.on svg, .bookmark.on svg, .icon-btn.fav svg { animation: heartPop .45s var(--ease-spring); }
+@keyframes heartPop { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+
+/* Tab bar: active circle grows in, icon bounces */
+.tabbar { animation: barIn .5s var(--ease-out) .1s backwards; }
+@keyframes barIn { from { opacity: 0; transform: translateY(20px); } }
+.tab.active { animation: tabPop .38s var(--ease-spring); }
+.tab.active .tab-icon { animation: iconBounce .5s var(--ease-spring); }
+@keyframes tabPop { from { transform: scale(.7); opacity: .6; } }
+@keyframes iconBounce { 0% { transform: translateY(4px); } 60% { transform: translateY(-3px); } 100% { transform: none; } }
+.badge { animation: tilePop .3s var(--ease-spring); }
+
+/* Bottom sheets: backdrop fades, sheet springs up, and both reverse on close */
+.sheet-backdrop { animation: fadeIn .22s ease backwards; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+.sheet { animation: sheetUp .38s var(--ease-out) backwards; }
+.sheet-backdrop.closing { animation: fadeOut .2s ease forwards; }
+.sheet-backdrop.closing .sheet { animation: sheetDown .2s ease-in forwards; }
+.sheet-grip { width: 40px; height: 5px; border-radius: 3px; background: #e2d6c1; margin: -4px auto 10px; }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes fadeOut { to { opacity: 0; } }
+@keyframes sheetUp { from { transform: translateY(100%); } }
+@keyframes sheetDown { to { transform: translateY(100%); } }
+
+/* Cook Mode: each step slides in from the side you're moving towards */
+.step-anim.fwd { animation: stepFwd .36s var(--ease-out) backwards; }
+.step-anim.back { animation: stepBack .36s var(--ease-out) backwards; }
+@keyframes stepFwd { from { opacity: 0; transform: translateX(40px); } }
+@keyframes stepBack { from { opacity: 0; transform: translateX(-40px); } }
+.progress div { transition: width .45s var(--ease-out); }
+.cook-controls .btn.next:active { transform: scale(.96); }
+
+/* Chat bubbles, toasts and grocery ticks */
+.bubble { animation: rise .3s var(--ease-out) backwards; }
+.g-row { transition: opacity .25s, background-color .25s; }
+.g-row.checked { opacity: .75; }
+.g-row input[type="checkbox"]:checked { animation: tilePop .3s var(--ease-spring); }
+.checklist label { transition: background-color .2s; }
+.toast { animation: toastIn .35s var(--ease-spring) backwards; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(20px) scale(.96); } }
+
+/* Respect the iPhone "Reduce Motion" setting */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .fade-img { opacity: 1; }
+}

@@ -12,11 +12,16 @@ import TabBar from './components/TabBar';
 export default function App() {
   const route = useRoute();
 
-  if (route.name === 'cook') return <CookMode id={route.id} />;
+  if (route.name === 'cook') return <div className="page-zoom" key={`cook-${route.id}`}><CookMode id={route.id} /></div>;
+
+  // A new key per screen replays the entrance animation each time you navigate.
+  const pageKey = route.name + ('id' in route ? `-${route.id}` : '');
+  // Opening something (recipe, editor, ideas) slides in from the right; switching tabs just fades up.
+  const deeper = ['recipe', 'new', 'edit', 'ideas'].includes(route.name);
 
   return (
     <div className="app">
-      <main className="screen">
+      <main className={'screen page ' + (deeper ? 'page-push' : 'page-fade')} key={pageKey}>
         {route.name === 'list' && <RecipeList />}
         {route.name === 'new' && <RecipeEditor />}
         {route.name === 'edit' && <RecipeEditor id={route.id} />}

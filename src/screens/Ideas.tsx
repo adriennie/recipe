@@ -67,7 +67,7 @@ export default function Ideas() {
           <section className="section">
             <h2>From your recipes</h2>
             {res.matches.length === 0 ? <p className="muted">None of your saved recipes fit — try the idea below.</p> : (
-              <ul className="cards">
+              <ul className="cards stagger">
                 {res.matches.map((m) => {
                   const r = byUid.get(m.id)!;
                   return (

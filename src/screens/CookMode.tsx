@@ -32,6 +32,9 @@ function useWakeLock() {
 export default function CookMode({ id }: { id: number }) {
   const r = useLiveQuery(() => db.recipes.get(id), [id], null);
   const [i, setI] = useState(-1); // -1 = not started, steps.length = finished
+  const [dir, setDir] = useState<'fwd' | 'back'>('fwd'); // which way the step slides in
+  const iRef = useRef(i);
+  iRef.current = i;
   const [speaking, setSpeaking] = useState(false);
   const [showIng, setShowIng] = useState(false);
   const [term, setTerm] = useState<Term | null>(null);
@@ -52,6 +55,7 @@ export default function CookMode({ id }: { id: number }) {
   const total = r?.steps.length ?? 0;
   const goTo = useCallback((n: number) => {
     if (!r) return;
+    setDir(n >= iRef.current ? 'fwd' : 'back');
     setI(n);
     if (n >= 0 && n < total) say(`Step ${n + 1}. ${r.steps[n]}`);
     else if (n >= total) say('All done. Enjoy!');
@@ -89,40 +93,42 @@ export default function CookMode({ id }: { id: number }) {
       </div>
 
       <div className="cook-body" ref={stepRef} tabIndex={-1} aria-live="polite">
-        {i < 0 ? (
-          <div className="cook-start">
-            <span className="art-tile cook-art"><Art name="oven" size={84} /></span>
-            <p className="cook-count">{total} steps</p>
-            <p className="cook-text">Ready when you are. Tap <b>Start</b> to hear step 1. Each next step is read only when you tap <b>Next</b>.</p>
-            {!speechSupported && <p className="error">This browser can't read aloud, but you can still follow the steps.</p>}
-            <button className="link" onClick={readIngredients}><Icon name="speaker" size={18} /> Read ingredients aloud</button>
-          </div>
-        ) : i >= total ? (
-          <div className="cook-start">
-            <p className="cook-count">Finished</p>
-            <p className="cook-text">All done. Enjoy!</p>
-            <button className="btn secondary" onClick={() => goTo(0)}>Start over</button>
-          </div>
-        ) : (
-          <>
-            <p className="cook-count">Step {i + 1} of {total}</p>
-            <p className="cook-text"><TermText text={r.steps[i]} onTerm={setTerm} /></p>
-            {aiAvailable && (
-              <button className="chip ask-chip" onClick={() => { stopSpeaking(); setAsking(true); }}>
-                <Icon name="sparkle" size={16} /> Ask about this step
-              </button>
-            )}
-            {termsIn(r.steps[i]).length > 0 && (
-              <div className="term-chips">
-                {termsIn(r.steps[i]).map((t) => (
-                  <button key={t.term} className="chip term-chip" onClick={() => setTerm(t)}>
-                    <span aria-hidden="true">?</span> What does “{t.term}” mean?
-                  </button>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+        <div key={i} className={'step-anim ' + dir}>
+          {i < 0 ? (
+            <div className="cook-start">
+              <span className="art-tile cook-art"><Art name="oven" size={84} /></span>
+              <p className="cook-count">{total} steps</p>
+              <p className="cook-text">Ready when you are. Tap <b>Start</b> to hear step 1. Each next step is read only when you tap <b>Next</b>.</p>
+              {!speechSupported && <p className="error">This browser can't read aloud, but you can still follow the steps.</p>}
+              <button className="link" onClick={readIngredients}><Icon name="speaker" size={18} /> Read ingredients aloud</button>
+            </div>
+          ) : i >= total ? (
+            <div className="cook-start">
+              <p className="cook-count">Finished</p>
+              <p className="cook-text">All done. Enjoy!</p>
+              <button className="btn secondary" onClick={() => goTo(0)}>Start over</button>
+            </div>
+          ) : (
+            <>
+              <p className="cook-count">Step {i + 1} of {total}</p>
+              <p className="cook-text"><TermText text={r.steps[i]} onTerm={setTerm} /></p>
+              {aiAvailable && (
+                <button className="chip ask-chip" onClick={() => { stopSpeaking(); setAsking(true); }}>
+                  <Icon name="sparkle" size={16} /> Ask about this step
+                </button>
+              )}
+              {termsIn(r.steps[i]).length > 0 && (
+                <div className="term-chips">
+                  {termsIn(r.steps[i]).map((t) => (
+                    <button key={t.term} className="chip term-chip" onClick={() => setTerm(t)}>
+                      <span aria-hidden="true">?</span> What does “{t.term}” mean?
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       <p className="cook-hint">Keep this screen open — iPhone pauses web speech if you leave the app or lock the phone.</p>

@@ -76,7 +76,7 @@ export default function RecipeDetail({ id }: { id: number }) {
         {r.ingredients.length === 0 ? <p className="muted">No ingredients listed.</p> : (
           <>
             <p className="muted small-text">Tick what you need to buy, then add just those to your grocery list.</p>
-            <ul className="checklist">
+            <ul className="checklist stagger">
               {r.ingredients.map((ing, i) => (
                 <li key={i}>
                   <label className={picked.has(i) ? 'on' : ''}>
@@ -99,7 +99,7 @@ export default function RecipeDetail({ id }: { id: number }) {
       <section className="section">
         <h2>Steps <span className="count">{r.steps.length}</span></h2>
         <p className="muted small-text">Tap an <span className="term-sample">underlined word</span> to see what it means.</p>
-        <ol className="steps">
+        <ol className="steps stagger">
           {r.steps.map((s, i) => <li key={i}><span><TermText text={s} onTerm={setTerm} /></span></li>)}
         </ol>
       </section>
@@ -115,5 +115,5 @@ function DetailCover({ title }: { title: string }) {
   const url = useRecipeImage(title);
   const [failed, setFailed] = useState(false);
   if (!url || failed) return null;
-  return <div className="detail-cover soft-card"><img src={url} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} /></div>;
+  return <div className="detail-cover soft-card"><img className="fade-img" onLoad={(e) => e.currentTarget.classList.add('loaded')} src={url} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} /></div>;
 }
