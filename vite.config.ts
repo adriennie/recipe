@@ -10,13 +10,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['apple-touch-icon.png', 'icon.svg'],
+      includeAssets: ['apple-touch-icon.png', 'icons/*.png'],
       manifest: {
         name: 'Recipe Reader',
         short_name: 'Recipes',
         description: 'Save recipes, hear them step by step, and keep a grocery list.',
-        theme_color: '#c2410c',
-        background_color: '#fffaf5',
+        theme_color: '#fbf6ec',
+        background_color: '#fbf6ec',
         display: 'standalone',
         orientation: 'portrait',
         start_url: './',
@@ -28,7 +28,7 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
         // Keep ingredient pictures and look-ups on the phone so they work offline after the first view.
         runtimeCaching: [
           {
@@ -42,7 +42,7 @@ export default defineConfig({
             options: { cacheName: 'wiki-photos', expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 180 }, cacheableResponse: { statuses: [0, 200] } }
           },
           {
-            urlPattern: ({ url }) => url.hostname === 'api.dictionaryapi.dev' || url.hostname === 'en.wikipedia.org',
+            urlPattern: ({ url }) => url.hostname === 'api.dictionaryapi.dev' || url.hostname === 'en.wikipedia.org' || (url.hostname === 'www.themealdb.com' && url.pathname.startsWith('/api/')),
             handler: 'NetworkFirst',
             options: { cacheName: 'lookups', networkTimeoutSeconds: 4, expiration: { maxEntries: 300 }, cacheableResponse: { statuses: [200] } }
           }

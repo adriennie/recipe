@@ -9,6 +9,7 @@ import ImageSheet from '../components/ImageSheet';
 import TermText from '../components/TermText';
 import TermSheet from '../components/TermSheet';
 import Sheet from '../components/Sheet';
+import Art from '../components/Art';
 import AskSheet from '../components/AskSheet';
 import { aiAvailable } from '../ai';
 import { termsIn, type Term } from '../glossary';
@@ -90,6 +91,7 @@ export default function CookMode({ id }: { id: number }) {
       <div className="cook-body" ref={stepRef} tabIndex={-1} aria-live="polite">
         {i < 0 ? (
           <div className="cook-start">
+            <span className="art-tile cook-art"><Art name="oven" size={84} /></span>
             <p className="cook-count">{total} steps</p>
             <p className="cook-text">Ready when you are. Tap <b>Start</b> to hear step 1. Each next step is read only when you tap <b>Next</b>.</p>
             {!speechSupported && <p className="error">This browser can't read aloud, but you can still follow the steps.</p>}
