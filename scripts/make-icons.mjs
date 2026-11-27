@@ -32,8 +32,8 @@ function draw(size, full) {
     if (Y >= 236 && (X - 256) ** 2 + (Y - 236) ** 2 <= 160 * 160) return [255, 255, 255, 255];
     // steam bars
     const bar = (x0, y0, h) => X >= x0 && X <= x0 + 28 && Y >= y0 && Y <= y0 + h;
-    if (bar(176, 120, 84) || bar(242, 96, 108) || bar(308, 120, 84)) return [254, 215, 170, 255];
-    return [194, 65, 12, 255];
+    if (bar(176, 120, 84) || bar(242, 96, 108) || bar(308, 120, 84)) return [43, 33, 24, 255];
+    return [242, 196, 90, 255];
   };
   const raw = Buffer.alloc((size * 4 + 1) * size);
   for (let y = 0; y < size; y++) {

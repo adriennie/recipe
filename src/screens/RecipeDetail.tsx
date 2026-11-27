@@ -10,6 +10,7 @@ import TermSheet from '../components/TermSheet';
 import type { Term } from '../glossary';
 import RecipeAI from '../components/RecipeAI';
 import { aiAvailable } from '../ai';
+import { difficulty, recipeMinutes, shortTime, useRecipeImage } from '../recipeMeta';
 
 export default function RecipeDetail({ id }: { id: number }) {
   const r = useLiveQuery(() => db.recipes.get(id), [id], null);
@@ -52,8 +53,14 @@ export default function RecipeDetail({ id }: { id: number }) {
         </div>
       </header>
 
+      <DetailCover title={r.title} />
       <span className="tag">{r.category}</span>
       <h1 className="title">{r.title}</h1>
+      <p className="meta detail-meta">
+        <Icon name="clock" size={17} /> {shortTime(recipeMinutes(r))}<span className="dot-sep">•</span>
+        <Icon name="bars" size={17} /> {difficulty(r)}<span className="dot-sep">•</span>
+        {r.ingredients.length} ingredients
+      </p>
 
       <a className="btn primary block big" href={`#/cook/${id}`}><Icon name="play" size={20} filled /> Start cooking</a>
 
@@ -102,4 +109,11 @@ export default function RecipeDetail({ id }: { id: number }) {
       {toast && <div className="toast" role="status">{toast} · <a href="#/grocery">View</a></div>}
     </>
   );
+}
+
+function DetailCover({ title }: { title: string }) {
+  const url = useRecipeImage(title);
+  const [failed, setFailed] = useState(false);
+  if (!url || failed) return null;
+  return <div className="detail-cover soft-card"><img src={url} alt="" referrerPolicy="no-referrer" onError={() => setFailed(true)} /></div>;
 }
