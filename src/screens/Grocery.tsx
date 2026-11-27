@@ -4,6 +4,7 @@ import { db, addToGrocery, normalize, type GroceryItem } from '../db';
 import Icon from '../components/Icon';
 import IngredientImage from '../components/IngredientImage';
 import TidySheet from '../components/TidySheet';
+import Art from '../components/Art';
 import { aiAvailable, SECTIONS } from '../ai';
 
 export default function Grocery() {
@@ -39,7 +40,7 @@ export default function Grocery() {
 
       {items && items.length === 0 && (
         <div className="empty">
-          <div className="empty-art"><Icon name="cart" size={40} /></div>
+          <div className="empty-art art-tile"><Art name="bread" size={88} /></div>
           <h2>Your list is empty</h2>
           <p>Type items above, or open a recipe and add just the ingredients you need.</p>
         </div>

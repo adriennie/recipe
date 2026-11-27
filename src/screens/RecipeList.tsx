@@ -4,10 +4,7 @@ import { db, CATEGORIES, type Recipe } from '../db';
 import Icon from '../components/Icon';
 import { aiAvailable } from '../ai';
 import { difficulty, recipeMinutes, shortTime, useRecipeImage } from '../recipeMeta';
-
-const CAT_ICON: Record<string, string> = {
-  All: 'grid', Food: 'bowl', Drink: 'cup', Baking: 'cake', Beauty: 'drop', Home: 'home', Craft: 'scissors', Other: 'dots'
-};
+import Art, { CATEGORY_ART } from '../components/Art';
 
 /** Home: greeting, search, featured carousel, categories and the recipe list. */
 export default function RecipeList() {
@@ -37,14 +34,14 @@ export default function RecipeList() {
           <p className="muted hello-sub">Discover your next favorite recipe.</p>
         </div>
         <div className="head-btns">
-          {aiAvailable && <a className="round-btn" href="#/ideas" aria-label="What can I cook?"><Icon name="chef" size={26} /></a>}
+          {aiAvailable && <a className="round-btn art-btn" href="#/ideas" aria-label="What can I cook?"><Art name="chef-hat" size={44} /></a>}
           <a className="round-btn gold" href="#/new" aria-label="Add a recipe"><Icon name="plus" size={24} /></a>
         </div>
       </header>
 
       {recipes === undefined ? null : recipes.length === 0 ? (
         <div className="empty soft-card">
-          <div className="empty-art"><Icon name="chef" size={40} /></div>
+          <div className="empty-art art-tile"><Art name="chef-hat" size={88} /></div>
           <h2>Your cookbook is empty</h2>
           <p>Paste any recipe — food, drinks, skincare, cleaning mixes — and it will be read to you one step at a time.</p>
           <a className="btn primary" href="#/new"><Icon name="plus" size={18} /> Add your first recipe</a>
@@ -65,7 +62,7 @@ export default function RecipeList() {
           <div className="cat-row" role="tablist" aria-label="Categories">
             {cats.map((c) => (
               <button key={c} role="tab" aria-selected={cat === c} className={'cat-tile' + (cat === c ? ' on' : '')} onClick={() => setCat(c)}>
-                <Icon name={CAT_ICON[c] ?? 'dots'} size={28} />
+                <Art name={CATEGORY_ART[c] ?? 'dough'} size={44} className="cat-art" />
                 <span>{c}</span>
               </button>
             ))}
@@ -73,7 +70,7 @@ export default function RecipeList() {
 
           {aiAvailable && (
             <a className="ideas-card soft-card" href="#/ideas">
-              <span className="ideas-icon"><Icon name="sparkle" size={22} /></span>
+              <span className="ideas-icon"><Art name="whisk" size={44} /></span>
               <span className="ideas-text"><b className="serif">What can I cook?</b><span className="muted">Tell me what’s in your kitchen</span></span>
               <Icon name="next" size={20} />
             </a>
@@ -104,14 +101,14 @@ function Meta({ r }: { r: Recipe }) {
   );
 }
 
-function Cover({ title, className }: { title: string; className: string }) {
+function Cover({ title, category, className }: { title: string; category: string; className: string }) {
   const url = useRecipeImage(title);
   const [failed, setFailed] = useState(false);
   return (
     <div className={className}>
       {url && !failed
         ? <img src={url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
-        : <span className="cover-fallback serif" aria-hidden="true">{title.trim().charAt(0).toUpperCase() || '?'}</span>}
+        : <Art name={CATEGORY_ART[category] ?? 'dough'} size={className === 'hero-img' ? 120 : 60} className="cover-art" />}
     </div>
   );
 }
@@ -129,7 +126,7 @@ function Featured({ list }: { list: Recipe[] }) {
       <div className="featured-track" ref={track} onScroll={onScroll}>
         {list.map((r) => (
           <a key={r.id} className="hero-card soft-card" href={`#/recipe/${r.id}`}>
-            <Cover title={r.title} className="hero-img" />
+            <Cover title={r.title} category={r.category} className="hero-img" />
             <div className="hero-body">
               <div className="hero-text">
                 <h2 className="hero-title">{r.title}</h2>
@@ -156,7 +153,7 @@ function Row({ r }: { r: Recipe }) {
   return (
     <li>
       <a className="recipe-row soft-card" href={`#/recipe/${r.id}`}>
-        <Cover title={r.title} className="row-img" />
+        <Cover title={r.title} category={r.category} className="row-img" />
         <div className="row-text">
           <h3>{r.title || 'Untitled recipe'}</h3>
           <Meta r={r} />

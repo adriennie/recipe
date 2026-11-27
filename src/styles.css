@@ -375,3 +375,17 @@ input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shado
 .stat, .stat-grid > div { background: var(--gold-soft); }
 .link { color: #8a5d00; }
 .sync-line.syncing .dot { background: var(--gold); }
+
+/* 3D kitchen illustrations */
+.art { display: block; border-radius: 22%; object-fit: cover; user-select: none; }
+.art-tile { display: inline-grid; place-items: center; padding: 6px; border-radius: 26px; background: var(--surface); box-shadow: var(--shadow); }
+.empty-art.art-tile { width: auto; height: auto; background: var(--surface); }
+.art-btn { overflow: hidden; padding: 0; }
+.art-btn .art { border-radius: 50%; width: 46px; height: 46px; }
+.cat-tile { width: 88px; height: 104px; gap: 6px; }
+.cat-tile .cat-art { border-radius: 14px; }
+.cat-tile.on .cat-art { box-shadow: 0 0 0 3px rgba(255, 255, 255, .7); }
+.ideas-icon { width: 48px; height: 48px; background: none; padding: 0; overflow: hidden; border-radius: 14px; }
+.hero-img, .row-img { background: linear-gradient(135deg, #fbf1dc, #f5e3bd); }
+.cover-art { border-radius: 24%; box-shadow: var(--shadow); }
+.cook-art { margin-bottom: 18px; align-self: flex-start; }

@@ -10,7 +10,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['apple-touch-icon.png', 'icon.svg'],
+      includeAssets: ['apple-touch-icon.png', 'icons/*.png'],
       manifest: {
         name: 'Recipe Reader',
         short_name: 'Recipes',
